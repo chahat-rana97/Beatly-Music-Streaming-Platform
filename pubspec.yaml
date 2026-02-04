@@ -1,0 +1,54 @@
+name: music_pf
+description: "Beatly – Feel the Beat"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # iOS-style icons
+  cupertino_icons: ^1.0.8
+
+  # State management
+  provider: ^6.1.2
+
+  # Audio Playback
+  just_audio: ^0.10.5
+  just_audio_background: ^0.0.1-beta.17
+
+  # Load device songs
+  on_audio_query: ^2.9.0
+
+  # Permissions (storage/media)
+  permission_handler: ^12.0.1
+
+  # Store favourites locally
+  shared_preferences: ^2.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # 🔥 App Icon Generator
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/beatly_logo.png
+    - assets/icon/beatly_icon.png
+
+# 🎯 FLUTTER APP ICON CONFIG
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/beatly_icon.png"
+  adaptive_icon_background: "#0F2C34"
+  adaptive_icon_foreground: "assets/icon/beatly_icon.png"
