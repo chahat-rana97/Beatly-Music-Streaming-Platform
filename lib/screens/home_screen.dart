@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/player_provider.dart';
 import '../widgets/song_tile.dart';
+import '../screens/player_screen.dart';
 import '../theme/app_theme.dart';
 import '../services/queue_storage_service.dart';
 
@@ -193,14 +194,43 @@ class _HomeScreenState extends State<HomeScreen> {
                         (context, index) {
                       final song = songs[index];
                       final realIndex = provider.songs.indexOf(song);
+
+                      // ── Double guard:
+                      //    1. currentIndex must be non-null (user has played something)
+                      //    2. index must actually match
+                      final isCurrentlyPlaying =
+                          provider.currentIndex != null &&
+                              provider.currentIndex == realIndex;
+
                       return SongTile(
                         songId: song.id,
                         title: song.title,
                         subtitle: song.artist,
                         isFav: provider.favouriteUris.contains(song.uri),
-                        isPlaying: provider.currentIndex == realIndex,
+                        isPlaying: isCurrentlyPlaying,
+                        // Tapping the already-playing tile → go to PlayerScreen
+                        onTapWhenPlaying: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PlayerScreen()),
+                        ),
                         onFavTap: () => provider.toggleFavourite(song.uri),
-                        onTap: () => provider.playSongAtIndex(realIndex),
+                        onTap: () {
+                          if (_selectedQueueId != null) {
+                            // A queue chip is active → play only that queue's songs
+                            final selectedQueue = _queues.firstWhere(
+                                  (q) => q.id == _selectedQueueId,
+                              orElse: () => SongQueue(id: '', name: ''),
+                            );
+                            if (selectedQueue.id.isNotEmpty) {
+                              provider.playQueueAtIndex(
+                                  selectedQueue.songUris, index);
+                              return;
+                            }
+                          }
+                          // No chip selected → play from full list
+                          provider.playSongAtIndex(realIndex);
+                        },
                       );
                     },
                     childCount: songs.length,
@@ -340,8 +370,6 @@ class _QueueChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = accentColor ?? AppColors.red;
-
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -349,16 +377,16 @@ class _QueueChip extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
         decoration: BoxDecoration(
-          color: isSelected ? color : AppColors.surface,
+          color: isSelected ? AppColors.red : AppColors.surface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? color : color.withOpacity(0.3),
+            color: isSelected ? AppColors.red : AppColors.red.withOpacity(0.3),
             width: isSelected ? 0 : 1,
           ),
           boxShadow: isSelected
               ? [
             BoxShadow(
-              color: color.withOpacity(0.35),
+              color: AppColors.red.withOpacity(0.35),
               blurRadius: 8,
               offset: const Offset(0, 3),
             )
@@ -371,13 +399,12 @@ class _QueueChip extends StatelessWidget {
             if (emoji != null && emoji!.isNotEmpty)
               Text(emoji!, style: const TextStyle(fontSize: 13))
             else
-              Icon(icon, size: 14,
-                  color: isSelected ? Colors.white : color),
+              Icon(icon, size: 14, color: isSelected ? Colors.white : AppColors.red),
             const SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : color,
+                color: isSelected ? Colors.white : AppColors.red,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.2,

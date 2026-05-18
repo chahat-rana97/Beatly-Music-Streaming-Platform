@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import '../providers/player_provider.dart';
-import '../widgets/mini_player.dart';
 import '../theme/app_theme.dart';
 import '../services/queue_storage_service.dart';
+import '../screens/player_screen.dart';
 
-// Re-export so other files can import SongQueue from here if needed
 export '../services/queue_storage_service.dart' show SongQueue;
 
 // ─────────────────────────────────────────────
@@ -486,11 +485,20 @@ class _QueueDetailScreenState extends State<QueueDetailScreen> {
     widget.onUpdate();
   }
 
-  void _playSong(PlayerProvider provider, String uri) {
-    final index = provider.songs.indexWhere((s) => s.uri == uri);
-    if (index != -1) provider.playSongAtIndex(index);
+  void _playSong(PlayerProvider provider, String uri, bool isPlaying) {
+    if (isPlaying) {
+      // Already playing → go to PlayerScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PlayerScreen()),
+      );
+      return;
+    }
+    final indexInQueue = widget.queue.songUris.indexOf(uri);
+    if (indexInQueue != -1) {
+      provider.playQueueAtIndex(widget.queue.songUris, indexInQueue);
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<PlayerProvider>(context);
@@ -642,7 +650,7 @@ class _QueueDetailScreenState extends State<QueueDetailScreen> {
           title: song.title,
           artist: song.artist,
           isPlaying: isPlaying,
-          onTap: () => _playSong(provider, song.uri),
+          onTap: () => _playSong(provider, song.uri, isPlaying), // pass isPlaying
           onRemove: () => _removeSong(song.uri),
         );
       },

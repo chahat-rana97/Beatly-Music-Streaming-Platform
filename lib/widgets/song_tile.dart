@@ -10,6 +10,9 @@ class SongTile extends StatelessWidget {
   final VoidCallback onFavTap;
   final bool isFav;
   final bool isPlaying;
+  // When non-null, tapping a currently-playing tile calls this
+  // instead of onTap (e.g. navigate to PlayerScreen).
+  final VoidCallback? onTapWhenPlaying;
 
   const SongTile({
     super.key,
@@ -20,12 +23,15 @@ class SongTile extends StatelessWidget {
     required this.onFavTap,
     this.isFav = false,
     this.isPlaying = false,
+    this.onTapWhenPlaying,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      // If currently playing and a special handler is provided, use it;
+      // otherwise fall through to the normal onTap.
+      onTap: isPlaying ? (onTapWhenPlaying ?? onTap) : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.symmetric(vertical: 5),
@@ -168,7 +174,9 @@ class SongTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
-                    isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    isFav
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
                     color: isFav ? AppColors.red : AppColors.textMuted,
                     size: 19,
                   ),
