@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'favourites_screen.dart';
+import 'queue_screen.dart';
 import '../widgets/mini_player.dart';
+import '../theme/app_theme.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,41 +18,32 @@ class _MainScreenState extends State<MainScreen> {
   final _screens = const [
     HomeScreen(),
     FavouritesScreen(),
-    ComingSoonScreen(),
+    QueueScreen(),
+    PremiumScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F2C34),
+      backgroundColor: AppColors.background,
       body: Column(
         children: [
           Expanded(child: _screens[_currentIndex]),
           const MiniPlayer(),
         ],
       ),
-
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF0F2C34),
-              Color(0xFF1F4E5F),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-          border: Border(
-            top: BorderSide(color: Colors.white12),
-          ),
-        ),
+        decoration: AppDecorations.bottomNav,
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           currentIndex: _currentIndex,
           onTap: (i) => setState(() => _currentIndex = i),
-          selectedItemColor: Colors.tealAccent,
-          unselectedItemColor: Colors.white54,
+          selectedItemColor: AppColors.red,
+          unselectedItemColor: AppColors.textMuted,
+          selectedLabelStyle: AppTextStyles.navLabel,
+          unselectedLabelStyle: AppTextStyles.navLabel,
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home_rounded),
@@ -62,7 +55,11 @@ class _MainScreenState extends State<MainScreen> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.queue_music_rounded),
-              label: 'List',
+              label: 'Queue',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.workspace_premium_rounded),
+              label: 'Premium',
             ),
           ],
         ),
@@ -71,19 +68,36 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-/// 🔒 Placeholder
-class ComingSoonScreen extends StatelessWidget {
-  const ComingSoonScreen({super.key});
+// ── Premium screen ──
+class PremiumScreen extends StatelessWidget {
+  const PremiumScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Coming Soon 🚧',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: Colors.white70,
+    return Container(
+      decoration: const BoxDecoration(gradient: AppGradients.body),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                    color: AppColors.red.withOpacity(0.3), width: 1),
+              ),
+              child: const Icon(Icons.workspace_premium_rounded,
+                  color: AppColors.red, size: 36),
+            ),
+            const SizedBox(height: 20),
+            Text('Beatly Premium', style: AppTextStyles.h3),
+            const SizedBox(height: 8),
+            Text('Unlimited music. Coming soon.',
+                style: AppTextStyles.bodySmall),
+          ],
         ),
       ),
     );

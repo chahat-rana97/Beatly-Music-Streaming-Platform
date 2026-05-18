@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'main_screen.dart';
+import '../theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,7 +15,6 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    // ⏱ Nano-second style delay (900ms feels premium)
     Timer(const Duration(milliseconds: 1900), () {
       Navigator.pushReplacement(
         context,
@@ -22,10 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
           transitionDuration: const Duration(milliseconds: 450),
           pageBuilder: (_, __, ___) => const MainScreen(),
           transitionsBuilder: (_, animation, __, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: child,
-            );
+            return FadeTransition(opacity: animation, child: child);
           },
         ),
       );
@@ -36,33 +33,20 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFF0F2C34),
-              Color(0xFF1F4E5F),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.splash),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 🎵 LOGO
               Image.asset(
-                'assets/images/beatly_logo.png',
+                'assets/icon/beatlyicon4.png',
                 width: 360,
               ),
-
               const SizedBox(height: 10),
-
-              // ✨ TAGLINE
               const Text(
-                "Beatly • Feel the Beat",
+                'Beatly • Feel the Beat',
                 style: TextStyle(
-                  color: Colors.tealAccent,
+                  color: AppColors.red,
                   fontSize: 18,
                   letterSpacing: 1.4,
                 ),

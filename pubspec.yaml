@@ -26,6 +26,7 @@ dependencies:
 
   # Permissions (storage/media)
   permission_handler: ^12.0.1
+  google_fonts: ^6.2.1
 
   # Store favourites locally
   shared_preferences: ^2.3.2
@@ -42,13 +43,13 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/beatly_logo.png
-    - assets/icon/beatly_icon.png
+    - assets/icon/beatlyicon4.png
+    - assets/icon/beatlyicon4.png
 
 # 🎯 FLUTTER APP ICON CONFIG
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/beatly_icon.png"
+  image_path: "assets/icon/beatlyicon3.png"
   adaptive_icon_background: "#0F2C34"
-  adaptive_icon_foreground: "assets/icon/beatly_icon.png"
+  adaptive_icon_foreground: "assets/icon/beatlyicon3.png"

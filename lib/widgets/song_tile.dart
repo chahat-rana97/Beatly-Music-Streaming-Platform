@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+import '../theme/app_theme.dart';
 
 class SongTile extends StatelessWidget {
+  final int songId;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -10,6 +13,7 @@ class SongTile extends StatelessWidget {
 
   const SongTile({
     super.key,
+    required this.songId,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -23,122 +27,155 @@ class SongTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 350),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        duration: const Duration(milliseconds: 300),
+        margin: const EdgeInsets.symmetric(vertical: 5),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          gradient: isPlaying
-              ? const LinearGradient(
-            colors: [
-              Color(0xFF1F4E5F),
-              Color(0xFF0F2C34),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
-              : LinearGradient(
-            colors: [
-              Colors.white.withOpacity(0.05),
-              Colors.white.withOpacity(0.02),
-            ],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isPlaying
-                  ? Colors.tealAccent.withOpacity(0.35)
-                  : Colors.black.withOpacity(0.4),
-              blurRadius: isPlaying ? 18 : 10,
-              offset: const Offset(0, 6),
-            ),
-          ],
+          color: isPlaying
+              ? AppColors.red.withOpacity(0.08)
+              : AppColors.surface,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isPlaying
-                ? Colors.tealAccent.withOpacity(0.6)
-                : Colors.white.withOpacity(0.08),
+                ? AppColors.red.withOpacity(0.35)
+                : AppColors.surfaceBorder,
+            width: isPlaying ? 1.0 : 0.5,
           ),
         ),
-        child: Row(
-          children: [
-            // 🎵 ICON / PLAYING INDICATOR
-            Container(
-              height: 44,
-              width: 44,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: isPlaying
-                    ? const LinearGradient(
-                  colors: [Colors.tealAccent, Colors.teal],
-                )
-                    : LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0.15),
-                    Colors.white.withOpacity(0.05),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              // ── Album art with playing overlay ──
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: QueryArtworkWidget(
+                      id: songId,
+                      type: ArtworkType.AUDIO,
+                      artworkWidth: 52,
+                      artworkHeight: 52,
+                      artworkFit: BoxFit.cover,
+                      artworkBorder: BorderRadius.zero,
+                      keepOldArtwork: true,
+                      nullArtworkWidget: Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: isPlaying
+                              ? AppColors.red.withOpacity(0.2)
+                              : AppColors.iconCircle,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.music_note_rounded,
+                          color: isPlaying
+                              ? AppColors.red
+                              : AppColors.textSecondary,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Playing pulse overlay
+                  if (isPlaying)
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          color: AppColors.red.withOpacity(0.18),
+                          child: const Center(
+                            child: Icon(
+                              Icons.equalizer_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+
+              const SizedBox(width: 14),
+
+              // ── Title + artist ──
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isPlaying
+                            ? AppColors.red
+                            : AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight:
+                        isPlaying ? FontWeight.w600 : FontWeight.w500,
+                        letterSpacing: isPlaying ? 0.1 : 0,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.label,
+                    ),
                   ],
                 ),
               ),
-              child: Icon(
-                isPlaying ? Icons.equalizer : Icons.music_note,
-                color: isPlaying ? Colors.black : Colors.white70,
-              ),
-            ),
 
-            const SizedBox(width: 14),
-
-            // 🎶 TITLE + ARTIST
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              // ── Now playing badge ──
+              if (isPlaying) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.red.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                        color: AppColors.red.withOpacity(0.3), width: 0.5),
+                  ),
+                  child: Text(
+                    'NOW',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight:
-                      isPlaying ? FontWeight.w600 : FontWeight.w500,
+                      color: AppColors.red,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // ❤️ FAV
-            IconButton(
-              onPressed: onFavTap,
-              icon: isFav
-                  ? ShaderMask(
-                shaderCallback: (bounds) {
-                  return const LinearGradient(
-                    colors: [Colors.tealAccent, Colors.teal],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ).createShader(bounds);
-                },
-                child: const Icon(
-                  Icons.favorite,
-                  color: Colors.white, // required for ShaderMask
                 ),
-              )
-                  : const Icon(
-                Icons.favorite_border,
-                color: Colors.white54,
-              ),
-            ),
+                const SizedBox(width: 4),
+              ],
 
-          ],
+              // ── Favourite button ──
+              GestureDetector(
+                onTap: onFavTap,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: isFav
+                        ? AppColors.red.withOpacity(0.1)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                    color: isFav ? AppColors.red : AppColors.textMuted,
+                    size: 19,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

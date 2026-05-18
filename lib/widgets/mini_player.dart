@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 import '../providers/player_provider.dart';
 import '../screens/player_screen.dart';
+import '../theme/app_theme.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -21,99 +23,70 @@ class MiniPlayer extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const PlayerScreen()),
       ),
       child: Container(
-        width: double.infinity, // ✅ FULL WIDTH
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF1F4E5F),
-              Color(0xFF0F2C34),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-
-          // ✅ SUBTLE TOP SEPARATOR (NOT FLOATING)
-          border: const Border(
-            top: BorderSide(color: Colors.white12),
-          ),
-
-          // ✅ INNER DEPTH (NOT CARD SHADOW)
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              blurRadius: 14,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: AppDecorations.miniPlayerBar,
         child: Row(
           children: [
-            // 🎵 ICON
-            Container(
-              height: 42,
-              width: 42,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [Colors.tealAccent, Colors.teal],
+            // ── Album art ──
+            ClipRRect(
+              borderRadius: AppRadius.xsBorderRadius,
+              child: QueryArtworkWidget(
+                id: song.id,
+                type: ArtworkType.AUDIO,
+                artworkWidth: 44,
+                artworkHeight: 44,
+                artworkFit: BoxFit.cover,
+                artworkBorder: BorderRadius.zero,
+                keepOldArtwork: true,
+                nullArtworkWidget: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: AppDecorations.playButton,
+                  child: const Icon(Icons.music_note,
+                      color: AppColors.textPrimary, size: 20),
                 ),
-              ),
-              child: const Icon(
-                Icons.music_note,
-                color: Colors.black,
               ),
             ),
 
             const SizedBox(width: 12),
 
-            // 🎶 TITLE + ARTIST
+            // ── Title + artist ──
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    song.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text(song.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.miniTitle),
                   const SizedBox(height: 2),
-                  Text(
-                    song.artist,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white60,
-                      fontSize: 12,
-                    ),
-                  ),
+                  Text(song.artist,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.miniArtist),
                 ],
               ),
             ),
 
-            // ⏯ PLAY / PAUSE
+            // ── Play / Pause ──
             IconButton(
               icon: Icon(
                 isPlaying
                     ? Icons.pause_circle_filled
                     : Icons.play_circle_filled,
                 size: 36,
+                color: AppColors.textPrimary,
               ),
-              color: Colors.white,
-              onPressed: () {
-                isPlaying ? provider.pause() : provider.resume();
-              },
+              onPressed: () =>
+              isPlaying ? provider.pause() : provider.resume(),
             ),
 
-            // ⏭ NEXT
+            // ── Next ──
             IconButton(
-              icon: const Icon(Icons.skip_next),
-              color: Colors.white70,
+              icon: const Icon(Icons.skip_next,
+                  color: AppColors.textSecondary),
               onPressed: provider.playNext,
             ),
           ],
